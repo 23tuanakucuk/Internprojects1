@@ -103,23 +103,30 @@ bool snakemove(const int& lastDirection) {
 		switch (lastDirection) {
 			hideCursor();
 		case KEY_UP:
-			snakey--;
+			while (KEY_UP = true) {
+				snakey--;
+			}
 			break;
 		case KEY_DOWN:
-			snakey++;
+			while (KEY_DOWN = true) {
+				snakey++;
+			}
 			break;
 		case KEY_LEFT:
-			snakex--;
+			while (KEY_LEFT = true) {
+				snakex--;
+			}
 			break;
 		case KEY_RIGHT:
-			snakex++;
+			while (KEY_RIGHT = true) {
+				snakex++;
+			}
 			break;
 		default:
 
 			break;
 		}
-
-		if (snakex > 40 || snakex < 2) {
+if (snakex > 40 || snakex < 2) {
 			write("Kaybettiniz", TextColor::Red); 
 			break;
 		} 	
