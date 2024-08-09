@@ -1,9 +1,11 @@
-﻿#include <iostream>
+#include <iostream>
 #include "cconvert.hpp"
 #include "randm.hpp"
 #include <ncurses.h>
 #include <unistd.h>
-bool gameover=true;
+#include <curses.h>
+
+bool gameover;
 constexpr int width=30; //wall
 constexpr int height=50;
 int ch;
@@ -128,7 +130,7 @@ void UpdateGame()
             snakey++;
         break;
         default:
-        break;
+            break;
     }
 
     // Checks for snake's collision with the wall (|)
@@ -189,8 +191,7 @@ void UserInput() {
             usleep(100000);
 
         }
-        endwin();
+       endwin();
         return 0;
     }
-
 
