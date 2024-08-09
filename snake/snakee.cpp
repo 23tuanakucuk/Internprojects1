@@ -167,6 +167,8 @@ void UserInput() {
             case 'x':
                 gameover = true;
             break;
+            default:
+              break;
         }
     }
 }
