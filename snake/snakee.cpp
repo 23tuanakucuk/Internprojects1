@@ -3,7 +3,7 @@
 #include "randm.hpp"
 #include <ncurses.h>
 #include <unistd.h>
-bool gameover;
+bool gameover=true;
 constexpr int width=30; //wall
 constexpr int height=50;
 int ch;
@@ -33,8 +33,8 @@ int ntail;
 void randmmLocation(int& locate) {
     locate = Utill::generateRandomInteger(1, 40);
 }
-enum eDirecton {STOP = 0, LEFT,RIGHT, UP, DOWN}; // Controls
 
+enum eDirecton {STOP = 0, LEFT,RIGHT, UP, DOWN}; // Controls
 eDirecton dir;
 
 void scene() {
@@ -62,15 +62,15 @@ void rulling() {
 
             if (j == 0)
 
-                std::cout << "#"; //walls
+                std::cout << "#";
 
             if (i == snakey && j == snakex)
 
-                std::cout << "O"; // snake tale
+                std::cout << "O";
 
             else if (i == baity && j == baitx )
 
-                std::cout << "*"; // change it to change the fruit
+                std::cout << "*";
 
             else {
 
@@ -102,20 +102,19 @@ void UpdateGame()
 {
     int prevX = tailx[0];
     int prevY = taily[0];
-    int prev2X, prev2Y;
     tailx[0] = snakex;
     taily[0] = snakey;
 
     for (int i = 1; i < ntail; i++) {
-        prev2X = tailx[i];
-        prev2Y = taily[i];
+        int prev2X = tailx[i];
+        int prev2Y = taily[i];
         tailx[i] = prevX;
         taily[i] = prevY;
         prevX = prev2X;
         prevY = prev2Y;
     }
 
-    switch (dir) {
+    switch(dir) {
         case LEFT:
             snakex--;
         break;
@@ -168,7 +167,7 @@ void UserInput() {
                 gameover = true;
             break;
             default:
-              break;
+                break;
         }
     }
 }
@@ -186,8 +185,10 @@ void UserInput() {
             UpdateGame();
 
             usleep(100000);
+
         }
         endwin();
         return 0;
     }
+
 
