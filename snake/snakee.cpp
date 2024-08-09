@@ -127,6 +127,8 @@ void UpdateGame()
         case DOWN:
             snakey++;
         break;
+        default:
+        break;
     }
 
     // Checks for snake's collision with the wall (|)
