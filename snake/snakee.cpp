@@ -1,216 +1,191 @@
 ﻿#include <iostream>
-#include <string>
-#include <random>
-#include <conio.h>
-#include <Windows.h>
+#include "cconvert.hpp"
+#include "randm.hpp"
+#include <ncurses.h>
+#include <unistd.h>
+bool gameover;
+constexpr int width=30; //wall
+constexpr int height=50;
+int ch;
 
-
-#define KEY_UP 72
-#define KEY_DOWN 80
-#define KEY_LEFT 75
-#define KEY_RIGHT 77
-
-namespace Utill {
-	int generateRandomInteger(int min, int max) {
-		std::random_device rd;
-		std::mt19937 gen(rd());
-		std::uniform_int_distribution<int> dist(min, max);
-		return dist(gen);
-	}
+bool kbhit() {
+    timeout(0); // Set non-blocking mode
+   ch = getch();
+    timeout(-1); // Reset to blocking mode
+    if (ch != ERR) {
+        ungetch(ch); // Put the character back into input buffer
+        return true;
+    }
+    return false;
 }
 
-
-enum class TextColor {
-	Default = 0,
-	Black = 30, Red = 31, Green = 32, Yellow = 33, Blue = 34,
-	Magenta = 35, Cyan = 36, White = 37,
-	BlackBright = 90, RedBright = 91, GreenBright = 92, YellowBright = 93,
-	BlueBright = 94, MagentaBright = 95, CyanBright = 96, WhiteBright = 97
-};
-
-enum class BackgroundColor {
-	Default = 0,
-	Black = 40, Red = 41, Green = 42, Yellow = 43, Blue = 44,
-	Magenta = 45, Cyan = 46, White = 47,
-	BlackBright = 100, RedBright = 101, GreenBright = 102, YellowBright = 103,
-	BlueBright = 104, MagentaBright = 105, CyanBright = 106, WhiteBright = 107
-};
-
-void clearConsole() {
-	std::cout << "\033[H\033[J";
-}
-
-void locateCursor(int x, int y) {
-	std::cout << "\033[" << y << ";" << x << "H";
-}
-
-void hideCursor() {
-	std::cout << "\033[?25l" << std::flush;
-}
-
-void showCursor() {
-	std::cout << "\033[?25h" << std::flush;
-}
-
-void write(const std::string& text, TextColor textColor = TextColor::Default,
-	BackgroundColor backgroundColor = BackgroundColor::Default) {
-	std::cout << "\033[" << static_cast<int>(textColor) << ";" << static_cast<int>(backgroundColor) << "m" << text <<
-		"\033[0m";
-}
-
-std::string read(TextColor textColor = TextColor::Default, BackgroundColor backgroundColor = BackgroundColor::Default) {
-	std::cout << "\033[" << static_cast<int>(textColor) << ";" << static_cast<int>(backgroundColor) << "m";
-
-	std::string value;
-
-	std::getline(std::cin, value);
-
-	std::cout << "\033[0m";
-
-	return value;
-}
+int snakex; //snake head start
+int snakey;
 
 
-std::string snake_b = "O";
-std::string bait = "*";
-
-int c = 0;
-int snakex = 2;
-int snakey = 2;
-
-
-
-int baitx;
+int baitx; // bait location
 int baity;
+int score;
 
-class Obj {
-public:
-	int& snakexx = snakex;
-	int& sankeyy = snakey;
-	std::string& snake_b = snake_b;
-	int& baitx = baitx;
-	int& baitx = baity;
-	std::string& bait = bait;
-};
-
+int tailx[100], taily[100]; //array of int snake
+int ntail;
 
 void randmmLocation(int& locate) {
-	locate = Utill::generateRandomInteger(2, 39);
+    locate = Utill::generateRandomInteger(1, 40);
+}
+enum eDirecton {STOP = 0, LEFT,RIGHT, UP, DOWN}; // Controls
+
+eDirecton dir;
+
+void scene() {
+    dir = STOP;
+    snakex= 3;
+    snakey= 3;
+    baitx = Utill::generateRandomInteger(1, 30);
+    baity = Utill::generateRandomInteger(1, 50);
+    score=0;
+
 }
 
-bool snakemove(const int& lastDirection) {
-	while (1) {
-		switch (lastDirection) {
-			hideCursor();
-		case KEY_UP:
-			while (KEY_UP = true) {
-				snakey--;
-			}
-			break;
-		case KEY_DOWN:
-			while (KEY_DOWN = true) {
-				snakey++;
-			}
-			break;
-		case KEY_LEFT:
-			while (KEY_LEFT = true) {
-				snakex--;
-			}
-			break;
-		case KEY_RIGHT:
-			while (KEY_RIGHT = true) {
-				snakex++;
-			}
-			break;
-		default:
+void rulling() {
+    clearConsole();
 
-			break;
-		}
-if (snakex > 40 || snakex < 2) {
-			write("Kaybettiniz", TextColor::Red); 
-			break;
-		} 	
-		if (snakey > 40 || snakey < 2) { 
-			write("Kaybettiniz", TextColor::Red); 
-			break;
-		}
-		return true;
-		
-	}
+    for(int i = 0; i < width+2; i++)
+
+        std::cout << "#";
+
+    std::cout << std::endl ;
+
+    for (int i = 0; i < height ; i++) {
+
+        for (int j = 0; j < width; j++) {
+
+            if (j == 0)
+
+                std::cout << "#"; //walls
+
+            if (i == snakey && j == snakex)
+
+                std::cout << "O"; // snake tale
+
+            else if (i == baity && j == baitx )
+
+                std::cout << "*"; // change it to change the fruit
+
+            else {
+
+                bool control = false;
+
+                for (int k = 0; k< ntail ; k++) {
+
+                    if (tailx [k] == j && taily [k] == i) {
+                        std::cout << "o";
+                       control  = true;
+                    }
+                }
+                if (!control)
+                    std::cout << " ";
+            }
+        }
+        std::cout << std::endl;
+    }
+
+    // Creating bottom walls with '-'
+    for (int i = 0; i < width + 2; i++)
+        std::cout << "#";
+    std::cout << std::endl;
+
+    std::cout << "Score:" << score <<std::endl ;
+
+}
+void UpdateGame()
+{
+    int prevX = tailx[0];
+    int prevY = taily[0];
+    int prev2X, prev2Y;
+    tailx[0] = snakex;
+    taily[0] = snakey;
+
+    for (int i = 1; i < ntail; i++) {
+        prev2X = tailx[i];
+        prev2Y = taily[i];
+        tailx[i] = prevX;
+        taily[i] = prevY;
+        prevX = prev2X;
+        prevY = prev2Y;
+    }
+
+    switch (dir) {
+        case LEFT:
+            snakex--;
+        break;
+        case RIGHT:
+            snakex++;
+        break;
+        case UP:
+            snakey--;
+        break;
+        case DOWN:
+            snakey++;
+        break;
+    }
+
+    // Checks for snake's collision with the wall (|)
+    if (snakex >= width || snakex < 0 || snakey >= height || snakey < 0)
+        gameover = true;
+
+    // Checks for collision with the tail (o)
+    for (int i = 0; i < ntail; i++) {
+        if (tailx[i] == snakex && taily[i] == snakey)
+            gameover = true;
+    }
+
+    // Checks for snake's collision with the food (#)
+    if (snakex == baitx && snakey == baity) {
+        score += 10;
+        baitx = Utill::generateRandomInteger(1, 30);
+        baity = Utill::generateRandomInteger(1, 50);
+       ntail++;
+    }
+}
+
+void UserInput() {
+    if (kbhit()) {
+        switch (getch()) {
+            case 'a':
+                dir = LEFT;
+            break;
+            case 'd':
+                dir = RIGHT;
+            break;
+            case 'w':
+                dir = UP;
+            break;
+            case 's':
+                dir = DOWN;
+            break;
+            case 'x':
+                gameover = true;
+            break;
+        }
+    }
 }
 
 
 
-int main() {
-	clearConsole();
+    int main(){
 
-	Obj snake;
-	Obj feed;
+        scene();
 
 
-	for (int wall_l = 1; wall_l <= 41; wall_l++) {
-		locateCursor(1, wall_l);
-		write("#", TextColor::CyanBright);
-	}
-	for (int wall_r = 1; wall_r <= 41; wall_r++) {
-		locateCursor(41, wall_r);
-		write("#", TextColor::CyanBright);
-	}
-	for (int wall_u = 2; wall_u <= 40; wall_u++) {
-		locateCursor(wall_u, 1);
-		write("#", TextColor::CyanBright);
-	}
-	for (int wall_d = 2; wall_d <= 40; wall_d++) {
-		locateCursor(wall_d, 41);
-		write("#", TextColor::CyanBright);
-	}
 
-	locateCursor(snakex, snakey);
-	write(snake.snake_b, TextColor::Red);
+        while (!gameover) {
+            UserInput();
+            UpdateGame();
 
+            usleep(100000);
+        }
+        endwin();
+        return 0;
+    }
 
-	randmmLocation(baitx);
-	randmmLocation(baity);
-	locateCursor(baitx, baity);
-	write(feed.bait, TextColor::White);
-
-
-	while (1) {
-		c = 0;
-
-		switch ((c = _getch())) {
-		case KEY_UP:
-			snakemove(KEY_UP);
-		case KEY_DOWN:
-			snakemove(KEY_DOWN);
-		case KEY_LEFT:
-			snakemove(KEY_LEFT);
-		case KEY_RIGHT:
-			snakemove(KEY_RIGHT);
-			if (!snakemove(c)) {
-				return 0;
-			}
-			break;
-		default:
-			break;
-			
-		}
-
-		if (snakex == baitx && snakey == baity) {
-			randmmLocation(baitx);
-			randmmLocation(baity);
-			locateCursor(baitx, baity);
-
-			snake_b.append("O");
-		}
-		locateCursor(snakex, snakey);
-		write(snake.snake_b, TextColor::Red);
-		write(feed.bait, TextColor::White);
-	}
-
-	return 0;
-}
-	
-	
-	
-	
