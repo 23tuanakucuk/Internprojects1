@@ -6,21 +6,20 @@
 #include <curses.h>
 
 bool gameover;
-constexpr int width=30; //wall
+constexpr int width=100; //wall
 constexpr int height=50;
 int ch;
-
+/*
 bool kbhit() {
     timeout(0); // Set non-blocking mode
-   ch = getch();
+    ch = getch();
     timeout(-1); // Reset to blocking mode
     if (ch != ERR) {
         ungetch(ch); // Put the character back into input buffer
         return true;
     }
     return false;
-}
-
+}*/
 int snakex; //snake head start
 int snakey;
 
@@ -52,23 +51,23 @@ void scene() {
 void rulling() {
     clearConsole();
 
-    for(int i = 0; i < width+2; i++)
-
+    for(int i = 0; i < width+1; i++)
         std::cout << "#";
+   std::cout<<std::endl;
 
-    std::cout << std::endl ;
 
     for (int i = 0; i < height ; i++) {
-
         for (int j = 0; j < width; j++) {
 
             if (j == 0)
-
                 std::cout << "#";
+
+            if (j==width-1)
+                std::cout<<"#";
 
             if (i == snakey && j == snakex)
 
-                std::cout << "O";
+                std::cout << "OOO";
 
             else if (i == baity && j == baitx )
 
@@ -81,27 +80,27 @@ void rulling() {
                 for (int k = 0; k< ntail ; k++) {
 
                     if (tailx [k] == j && taily [k] == i) {
-                        std::cout << "o";
-                       control  = true;
+                        std::cout << "O";
+                        control = true;
                     }
                 }
                 if (!control)
                     std::cout << " ";
             }
         }
+
+
         std::cout << std::endl;
     }
 
-    // Creating bottom walls with '-'
-    for (int i = 0; i < width + 2; i++)
+    for(int i = 0; i < width+1; i++)
         std::cout << "#";
     std::cout << std::endl;
 
-    std::cout << "Score:" << score <<std::endl ;
+    }
 
-}
-void UpdateGame()
-{
+
+void UpdateGame(){
     int prevX = tailx[0];
     int prevY = taily[0];
     tailx[0] = snakex;
@@ -151,47 +150,46 @@ void UpdateGame()
        ntail++;
     }
 }
-
+/*
 void UserInput() {
-    if (kbhit()) {
-        switch (getch()) {
-            case 'a':
-                dir = LEFT;
-            break;
-            case 'd':
-                dir = RIGHT;
-            break;
-            case 'w':
-                dir = UP;
-            break;
-            case 's':
-                dir = DOWN;
-            break;
-            case 'x':
-                gameover = true;
-            break;
-            default:
+
+        if (kbhit()) {
+            switch (getch()) {
+                case 'a':
+                    dir = LEFT;
                 break;
+                case 'd':
+                    dir = RIGHT;
+                break;
+                case 'w':
+                    dir = UP;
+                break;
+                case 's':
+                    dir = DOWN;
+                break;
+                case 'x':
+                    gameover = true;
+                break;
+                default:
+                    break;
+            }
         }
+
     }
-}
 
-
+    */
 
     int main(){
 
         scene();
-
-
-
+        rulling();
         while (!gameover) {
-            UserInput();
+
             UpdateGame();
 
             usleep(100000);
-
         }
-       endwin();
+        //endwin();
         return 0;
     }
 
