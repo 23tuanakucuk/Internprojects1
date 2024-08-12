@@ -31,8 +31,6 @@ int score;
 int tailx[100], taily[100]; //array of int snake
 int ntail;
 
-void randmmLocation(int& locate) {
-    locate = Utill::generateRandomInteger(1, 40);
 }
 
 enum eDirecton {STOP = 0, LEFT,RIGHT, UP, DOWN}; // Controls
