@@ -192,4 +192,3 @@ void UserInput() {
         //endwin();
         return 0;
     }
-
