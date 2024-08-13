@@ -1,25 +1,19 @@
 #include <iostream>
+#include "randdm.hpp"
 #include "cconvert.hpp"
-#include "randm.hpp"
-#include <ncurses.h>
+#include <cstdio>
 #include <unistd.h>
-#include <curses.h>
+#include <bits/stdc++.h>
+#include <chrono>
+#include <thread>
+#include <termios.h>
+
 
 bool gameover;
-constexpr int width=100; //wall
+constexpr int width=50; //wall
 constexpr int height=50;
 int ch;
-/*
-bool kbhit() {
-    timeout(0); // Set non-blocking mode
-    ch = getch();
-    timeout(-1); // Reset to blocking mode
-    if (ch != ERR) {
-        ungetch(ch); // Put the character back into input buffer
-        return true;
-    }
-    return false;
-}*/
+
 int snakex; //snake head start
 int snakey;
 
@@ -31,27 +25,48 @@ int score;
 int tailx[100], taily[100]; //array of int snake
 int ntail;
 
-}
-
-enum eDirecton {STOP = 0, LEFT,RIGHT, UP, DOWN}; // Controls
+enum eDirecton {
+    STOP = -1,
+    Left = 0,
+    Up = 1,
+    Right = 2,
+    Down = 3
+}; // Controls
 eDirecton dir;
 
-void scene() {
-    dir = STOP;
-    snakex= 3;
-    snakey= 3;
-    baitx = Utill::generateRandomInteger(1, 30);
-    baity = Utill::generateRandomInteger(1, 50);
-    score=0;
+char getUserInput() {
+    char input;
+    struct termios old_settings, new_settings;
 
+    tcgetattr(STDIN_FILENO, &old_settings);
+    new_settings = old_settings;
+    new_settings.c_lflag &= ~(ICANON | ECHO);
+    tcsetattr(STDIN_FILENO, TCSANOW, &new_settings);
+
+    input = getchar();
+
+    tcsetattr(STDIN_FILENO, TCSANOW, &old_settings);
+
+    return input;
 }
 
-void rulling() {
-    clearConsole();
+
+void scene(){
+    dir = STOP;
+    snakex=3;
+    snakey=3;
+    baitx = Utill::generateRandomInteger(2, 49);
+    baity = Utill::generateRandomInteger(2, 50);
+    score=0;
+    locateCursor(52,2);
+    std::cout<<"Score:"<<score<<std::endl;
+}
+
+void rulling(){
 
     for(int i = 0; i < width+1; i++)
         std::cout << "#";
-   std::cout<<std::endl;
+    std::cout<<std::endl;
 
 
     for (int i = 0; i < height ; i++) {
@@ -95,8 +110,7 @@ void rulling() {
         std::cout << "#";
     std::cout << std::endl;
 
-    }
-
+}
 
 void UpdateGame(){
     int prevX = tailx[0];
@@ -113,21 +127,30 @@ void UpdateGame(){
         prevY = prev2Y;
     }
 
-    switch(dir) {
-        case LEFT:
-            snakex--;
-        break;
-        case RIGHT:
-            snakex++;
-        break;
-        case UP:
-            snakey--;
-        break;
-        case DOWN:
-            snakey++;
-        break;
-        default:
-            break;
+     {
+        switch(dir) {
+            case Left:
+               while(true)
+                   {snakex--;
+                   break;}
+            case Right:
+                while(true){
+                snakex++;
+                break;
+            }
+            case Up:
+                while(true){
+                snakey--;
+                break;
+            }
+            case Down:
+                while(true){
+                snakey++;
+                break;
+            }
+            default:
+                break;
+        }
     }
 
     // Checks for snake's collision with the wall (|)
@@ -143,50 +166,56 @@ void UpdateGame(){
     // Checks for snake's collision with the food (#)
     if (snakex == baitx && snakey == baity) {
         score += 10;
+        locateCursor(52,2);
+        std::cout<<"Score:"<<score<<std::endl;
         baitx = Utill::generateRandomInteger(1, 30);
         baity = Utill::generateRandomInteger(1, 50);
-       ntail++;
+        ntail++;
     }
 }
-/*
-void UserInput() {
 
-        if (kbhit()) {
-            switch (getch()) {
-                case 'a':
-                    dir = LEFT;
-                break;
-                case 'd':
-                    dir = RIGHT;
-                break;
-                case 'w':
-                    dir = UP;
-                break;
-                case 's':
-                    dir = DOWN;
-                break;
-                case 'x':
-                    gameover = true;
-                break;
-                default:
-                    break;
-            }
-        }
-
+void UserInput(){
+    char user_input = getUserInput();;
+    switch (user_input) {
+        case 'a':
+          dir = Left;
+        break;
+        case 'w':
+            dir = Up;
+        break;
+        case 'd':
+            dir = Right;
+        break;
+        case 's':
+            dir = Down;
+        break;
+        default:
+            dir = STOP;
+        gameover=true;
+        break;
     }
 
-    */
+}
 
-    int main(){
 
-        scene();
-        rulling();
-        while (!gameover) {
 
-            UpdateGame();
 
-            usleep(100000);
-        }
-        //endwin();
-        return 0;
+int main()
+{
+    clearConsole();
+    scene();
+
+    while (gameover==false) {
+        rulling(); // Render the game scene
+        UserInput(); // Handle user input
+        UpdateGame(); // Update game state
+
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(100)); // Introduce a delay
+
+        clearConsole(); // Clear the console before the next iteration
+        if(gameover==true){break;}
     }
+    return 0;
+
+}
