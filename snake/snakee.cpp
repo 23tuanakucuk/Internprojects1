@@ -7,16 +7,17 @@
 #include <chrono>
 #include <thread>
 #include <termios.h>
+#include <string>
 
 
 bool gameover;
-constexpr int width=50; //wall
+constexpr int width=100; //wall
 constexpr int height=50;
 int ch;
 
 int snakex; //snake head start
 int snakey;
-
+std::string snake="O";
 
 int baitx; // bait location
 int baity;
@@ -24,6 +25,14 @@ int score;
 
 int tailx[100], taily[100]; //array of int snake
 int ntail;
+
+void insertDemo()
+{
+    // Inserts at 5th index,
+    // 5 occurrences of '$'
+    snake.insert(0, 1, 'o');
+    std::cout << snake;
+}
 
 enum eDirecton {
     STOP = -1,
@@ -55,8 +64,8 @@ void scene(){
     dir = STOP;
     snakex=3;
     snakey=3;
-    baitx = Utill::generateRandomInteger(2, 49);
-    baity = Utill::generateRandomInteger(2, 50);
+    baitx = Utill::generateRandomInteger(2, 30);
+    baity = Utill::generateRandomInteger(2, 30);
     score=0;
     locateCursor(52,2);
     std::cout<<"Score:"<<score<<std::endl;
@@ -80,7 +89,7 @@ void rulling(){
 
             if (i == snakey && j == snakex)
 
-                std::cout << "OOO";
+                std::cout << snake;
 
             else if (i == baity && j == baitx )
 
@@ -93,7 +102,6 @@ void rulling(){
                 for (int k = 0; k< ntail ; k++) {
 
                     if (tailx [k] == j && taily [k] == i) {
-                        std::cout << "O";
                         control = true;
                     }
                 }
@@ -130,24 +138,15 @@ void UpdateGame(){
      {
         switch(dir) {
             case Left:
-               while(true)
-                   {snakex--;
-                   break;}
+                   snakex--;
+
             case Right:
-                while(true){
                 snakex++;
-                break;
-            }
             case Up:
-                while(true){
                 snakey--;
-                break;
-            }
+
             case Down:
-                while(true){
                 snakey++;
-                break;
-            }
             default:
                 break;
         }
@@ -165,13 +164,14 @@ void UpdateGame(){
 
     // Checks for snake's collision with the food (#)
     if (snakex == baitx && snakey == baity) {
+        insertDemo();
         score += 10;
-        locateCursor(52,2);
-        std::cout<<"Score:"<<score<<std::endl;
         baitx = Utill::generateRandomInteger(1, 30);
         baity = Utill::generateRandomInteger(1, 50);
         ntail++;
     }
+    locateCursor(2,2);
+    std::cout<<"Score:"<<score<<std::endl;
 }
 
 void UserInput(){
