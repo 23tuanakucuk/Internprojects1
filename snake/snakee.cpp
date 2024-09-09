@@ -28,8 +28,6 @@ int ntail;
 
 void insertDemo()
 {
-    // Inserts at 5th index,
-    // 5 occurrences of '$'
     snake.insert(0, 1, 'o');
     std::cout << snake;
 }
